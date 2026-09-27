@@ -1,0 +1,16 @@
+{
+  "name": "@lez/basecamp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LEZ wallet basecamp integration surface (stub — implemented on @lez/core's WalletSDK)",
+  "license": "(MIT OR Apache-2.0)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@lez/core": "0.1.0"
+  }
+}

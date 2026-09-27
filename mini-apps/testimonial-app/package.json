@@ -1,0 +1,16 @@
+{
+  "name": "@lez/testimonial-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Testimonial mini-app: dApp demo driving publishTestimonial (stub — on @lez/core's WalletSDK)",
+  "license": "(MIT OR Apache-2.0)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@lez/core": "0.1.0"
+  }
+}

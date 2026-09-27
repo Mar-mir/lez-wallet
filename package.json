@@ -1,0 +1,26 @@
+{
+  "name": "lez-wallet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LEZ Wallet + Wallet Provider SDK for Logos testnet 0.3 (LP-0021)",
+  "license": "(MIT OR Apache-2.0)",
+  "workspaces": [
+    "packages/core",
+    "packages/cli",
+    "packages/extension",
+    "packages/basecamp",
+    "mini-apps/*"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "tsc -b packages/core packages/cli packages/extension packages/basecamp mini-apps/testimonial-app mini-apps/faucet-app",
+    "typecheck": "npm run lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

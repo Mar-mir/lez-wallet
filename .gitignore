@@ -1,0 +1,23 @@
+# Dual-licensed: MIT OR Apache-2.0
+#
+# Source files are dual-licensed under the terms of the MIT License
+# (LICENSE-MIT) or the Apache License, Version 2.0 (LICENSE-APACHE), at your
+# option. When distributing source, retain both license files.
+
+node_modules/
+dist/
+out/
+build/
+target/
+*.tsbuildinfo
+.vitest/
+coverage/
+.env
+*.local
+.DS_Store
+generated_code/
+result
+*.lgx
+*.lgx-portable
+# LEZ wallet home used by the core CLI backend (per-user, never committed)
+.lez-wallet-home/

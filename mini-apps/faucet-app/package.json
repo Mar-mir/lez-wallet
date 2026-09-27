@@ -1,0 +1,16 @@
+{
+  "name": "@lez/faucet-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Faucet mini-app: testnet token dispenser dApp (stub — on @lez/core's WalletSDK)",
+  "license": "(MIT OR Apache-2.0)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@lez/core": "0.1.0"
+  }
+}

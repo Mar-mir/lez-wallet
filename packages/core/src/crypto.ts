@@ -1,13 +1,36 @@
 // Dual-licensed: MIT OR Apache-2.0
 /**
- * Self-contained crypto helpers using WebCrypto (available in Node >= 18 and
- * in MV3 service workers). No native dependencies.
+ * Self-contained crypto helpers using WebCrypto. No native dependencies.
+ *
+ * The Web Crypto implementation is resolved at load time:
+ * - browsers / MV3 service workers: the standard `globalThis.crypto`;
+ * - Node 18 file contexts (where the global can be absent): `node:crypto`'s
+ *   `webcrypto`, imported lazily so browser bundles never touch it.
  */
 
 const TEXT = new TextEncoder();
 
+async function resolveWebCrypto(): Promise<Crypto> {
+  const g = (globalThis as { crypto?: Crypto }).crypto;
+  if (g?.getRandomValues && g.subtle) return g;
+  try {
+    // Variable specifier: keeps bundlers from trying to resolve node:crypto
+    // for browser builds; this branch only ever executes under Node.
+    const spec = "node:crypto";
+    const mod = (await import(/* @vite-ignore */ spec)) as { webcrypto?: Crypto };
+    const w = mod.webcrypto;
+    if (w?.getRandomValues && w.subtle) return w;
+  } catch {
+    /* not running under Node */
+  }
+  throw new Error("WebCrypto API unavailable in this environment");
+}
+
+/** Resolved Web Crypto implementation (shared with keys.ts). */
+export const webcrypto: Crypto = await resolveWebCrypto();
+
 export async function sha256(data: Uint8Array): Promise<Uint8Array> {
-  const buf = await crypto.subtle.digest("SHA-256", data as BufferSource);
+  const buf = await webcrypto.subtle.digest("SHA-256", data as BufferSource);
   return new Uint8Array(buf);
 }
 
@@ -38,7 +61,7 @@ export function hexToBytes(hex: string): Uint8Array {
 
 export function randomBytes(n: number): Uint8Array {
   const out = new Uint8Array(n);
-  crypto.getRandomValues(out);
+  webcrypto.getRandomValues(out);
   return out;
 }
 
@@ -52,14 +75,14 @@ export async function pbkdf2Key(
   salt: Uint8Array,
   iterations = 210_000,
 ): Promise<CryptoKey> {
-  const baseKey = await crypto.subtle.importKey(
+  const baseKey = await webcrypto.subtle.importKey(
     "raw",
     TEXT.encode(password) as BufferSource,
     "PBKDF2",
     false,
     ["deriveKey"],
   );
-  return crypto.subtle.deriveKey(
+  return webcrypto.subtle.deriveKey(
     { name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
     baseKey,
     { name: "AES-GCM", length: 256 },
@@ -74,7 +97,7 @@ export async function aesGcmEncrypt(
   plaintext: Uint8Array,
 ): Promise<Uint8Array> {
   const iv = randomBytes(12);
-  const ct = await crypto.subtle.encrypt(
+  const ct = await webcrypto.subtle.encrypt(
     { name: "AES-GCM", iv: iv as BufferSource },
     key,
     plaintext as BufferSource,
@@ -91,7 +114,7 @@ export async function aesGcmDecrypt(
 ): Promise<Uint8Array> {
   const iv = payload.subarray(0, 12);
   const ct = payload.subarray(12);
-  const pt = await crypto.subtle.decrypt(
+  const pt = await webcrypto.subtle.decrypt(
     { name: "AES-GCM", iv: iv as BufferSource },
     key,
     ct as BufferSource,

@@ -8,6 +8,7 @@
  * - deriveAccountKeys is a synchronous HMAC chain over the BIP-39 seed.
  */
 import { readFileSync } from "node:fs";
+import { webcrypto } from "./crypto.js";
 import { WalletError } from "./errors.js";
 
 const WORDLIST = readFileSync(new URL("../data/english.txt", import.meta.url), "utf8")
@@ -25,7 +26,7 @@ export function wordlistSize(): number {
 export function generateMnemonic(words: 12 | 24 = 12): string {
   const entropyBits = (words * 11 * 32) / 33; // 128 or 256 bits
   const entropy = new Uint8Array(entropyBits / 8);
-  crypto.getRandomValues(entropy);
+  webcrypto.getRandomValues(entropy);
   return entropyToMnemonic(entropy);
 }
 
@@ -36,14 +37,14 @@ export function generateMnemonic(words: 12 | 24 = 12): string {
 export async function mnemonicToSeed(mnemonic: string, passphrase = ""): Promise<string> {
   const words = mnemonic.trim().toLowerCase().split(/\s+/).filter(Boolean).join(" ").normalize("NFKD");
   const salt = new TextEncoder().encode(`mnemonic${passphrase}`.normalize("NFKD"));
-  const baseKey = await crypto.subtle.importKey(
+  const baseKey = await webcrypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(words) as BufferSource,
     "PBKDF2",
     false,
     ["deriveBits"],
   );
-  const bits = await crypto.subtle.deriveBits(
+  const bits = await webcrypto.subtle.deriveBits(
     { name: "PBKDF2", salt: salt as BufferSource, iterations: 2048, hash: "SHA-512" },
     baseKey,
     512,
